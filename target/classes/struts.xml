@@ -5,13 +5,13 @@
 <struts>
     <package name="upload" extends="struts-default">
         <action name="upload" class="com.arti.remotefiles.UploadAction" method="doUpload">
-            <interceptor-ref name="actionFileUpload"/>
+            <interceptor-ref name="defaultStack"/>
             <result name="success" type="">/file.jsp</result>
         </action>
     </package>
     <package name="uploads" extends="struts-default">
         <action name="uploads" class="com.arti.remotefiles.UploadsAction" method="doUpload">
-            <interceptor-ref name="actionFileUpload"/>
+            <interceptor-ref name="defaultStack"/>
             <result name="success" type="">/files.jsp</result>
         </action>
     </package>
