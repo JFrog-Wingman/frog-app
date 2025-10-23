@@ -1,6 +1,6 @@
 package com.arti.remotefiles;
 
-import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.ActionSupport;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +15,14 @@ public class ListFilesAction extends ActionSupport {
         File uploadDirectory = new File(uploadDir);
         if (uploadDirectory.exists() && uploadDirectory.isDirectory()) {
             files = new ArrayList<String>();
-            for (File file : uploadDirectory.listFiles()) {
-                files.add(file.getName());
+            File[] fileList = uploadDirectory.listFiles();
+            if (fileList != null) {
+                for (File file : fileList) {
+                    // Only list regular files, not directories (additional safety)
+                    if (file.isFile()) {
+                        files.add(file.getName());
+                    }
+                }
             }
         }
         return SUCCESS;
