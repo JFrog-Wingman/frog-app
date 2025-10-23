@@ -3,16 +3,30 @@
         "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
         "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
+    <!-- Configure global file upload settings -->
+    <constant name="struts.multipart.maxSize" value="10485760" /> <!-- 10MB -->
+    <constant name="struts.multipart.saveDir" value="/tmp" />
+    
     <package name="upload" extends="struts-default">
         <action name="upload" class="com.arti.remotefiles.UploadAction" method="doUpload">
-            <interceptor-ref name="actionFileUpload"/>
+            <!-- Use the default interceptor stack which includes the newer file upload mechanism -->
+            <interceptor-ref name="defaultStack">
+                <param name="fileUpload.maximumSize">10485760</param>
+                <param name="fileUpload.allowedExtensions">txt,pdf,doc,docx,jpg,jpeg,png,gif</param>
+            </interceptor-ref>
             <result name="success" type="">/file.jsp</result>
+            <result name="error">/index.jsp</result>
         </action>
     </package>
     <package name="uploads" extends="struts-default">
         <action name="uploads" class="com.arti.remotefiles.UploadsAction" method="doUpload">
-            <interceptor-ref name="actionFileUpload"/>
+            <!-- Use the default interceptor stack instead of deprecated actionFileUpload -->
+            <interceptor-ref name="defaultStack">
+                <param name="fileUpload.maximumSize">10485760</param>
+                <param name="fileUpload.allowedExtensions">txt,pdf,doc,docx,jpg,jpeg,png,gif</param>
+            </interceptor-ref>
             <result name="success" type="">/files.jsp</result>
+            <result name="error">/index.jsp</result>
         </action>
     </package>
     <package name="listFiles" extends="struts-default">
