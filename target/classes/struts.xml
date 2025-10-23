@@ -5,7 +5,7 @@
 <struts>
     <!-- Configure global file upload settings -->
     <constant name="struts.multipart.maxSize" value="10485760" /> <!-- 10MB -->
-    <constant name="struts.multipart.saveDir" value="/tmp" />
+    <constant name="struts.multipart.saveDir" value="${java.io.tmpdir}/struts-uploads" />
     
     <package name="upload" extends="struts-default">
         <action name="upload" class="com.arti.remotefiles.UploadAction" method="doUpload">

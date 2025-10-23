@@ -4,10 +4,10 @@ import com.opensymphony.xwork2.ActionSupport;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class UploadAction extends ActionSupport {
     private static final long serialVersionUID = 1L;
+    private static final String UPLOAD_DIR = "webapps/ROOT/uploads";
     
     // Enhanced path traversal detection for secure file upload
     public static boolean isSafeFileAccess(String baseDir, String filename) {
@@ -31,7 +31,7 @@ public class UploadAction extends ActionSupport {
             boolean withinBase = file.getPath().startsWith(base.getPath() + File.separator);
             
             // Additional check: ensure the resolved file is still within bounds
-            if (!withinBase || !file.getParent().equals(base.getPath())) {
+            if (!withinBase || !file.getParentFile().getCanonicalPath().equals(base.getCanonicalPath())) {
                 System.err.println("File outside allowed directory: " + filename);
                 return false;
             }
@@ -94,8 +94,7 @@ public class UploadAction extends ActionSupport {
     public String doUpload() {
         if (upload != null && upload.length() > 0) {
             try {
-                String uploadDir = "webapps/ROOT/uploads";
-                File uploadDirectory = new File(uploadDir);
+                File uploadDirectory = new File(UPLOAD_DIR);
                 if (!uploadDirectory.exists()) {
                     uploadDirectory.mkdirs(); // Use mkdirs for better directory creation
                 }
@@ -108,7 +107,7 @@ public class UploadAction extends ActionSupport {
                 }
                 
                 // Path traversal check with enhanced validation
-                if (!isSafeFileAccess(uploadDir, sanitizedFilename)) {
+                if (!isSafeFileAccess(UPLOAD_DIR, sanitizedFilename)) {
                     System.err.println("Security violation: Malicious filename blocked - " + uploadFileName);
                     addActionError("Invalid file path detected");
                     return ERROR;
@@ -122,9 +121,17 @@ public class UploadAction extends ActionSupport {
                 
                 File destFile = new File(uploadDirectory, sanitizedFilename);
                 
-                // Final safety check before writing
-                if (!destFile.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath())) {
+                // Final safety check before writing - ensure file is properly contained
+                if (!destFile.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath() + File.separator) 
+                    && !destFile.getCanonicalPath().equals(uploadDirectory.getCanonicalPath())) {
                     System.err.println("Final path validation failed for: " + sanitizedFilename);
+                    addActionError("Invalid file path");
+                    return ERROR;
+                }
+                
+                // Additional check: ensure the filename hasn't been tampered with during sanitization
+                if (!destFile.getName().equals(sanitizedFilename)) {
+                    System.err.println("Filename mismatch detected: " + sanitizedFilename);
                     addActionError("Invalid file path");
                     return ERROR;
                 }

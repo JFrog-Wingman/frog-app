@@ -8,6 +8,7 @@ import java.io.InputStream;
 public class DownloadAction extends ActionSupport {
 
     private static final long serialVersionUID = 1L;
+    private static final String UPLOAD_DIR = "webapps/ROOT/uploads";
     private String filename;
     private InputStream inputStream;
 
@@ -19,14 +20,13 @@ public class DownloadAction extends ActionSupport {
         }
         
         // Path traversal protection - same as UploadAction
-        if (!UploadAction.isSafeFileAccess("webapps/ROOT/uploads", filename)) {
+        if (!UploadAction.isSafeFileAccess(UPLOAD_DIR, filename)) {
             System.err.println("Security violation: Malicious download filename blocked - " + filename);
             addActionError("Invalid file path detected");
             return ERROR;
         }
         
-        String uploadDir = "webapps/ROOT/uploads";
-        File fileToDownload = new File(uploadDir, filename);
+        File fileToDownload = new File(UPLOAD_DIR, filename);
         
         // Additional security checks
         if (!fileToDownload.exists()) {
@@ -41,7 +41,7 @@ public class DownloadAction extends ActionSupport {
         
         // Final canonical path check
         try {
-            File uploadDirectory = new File(uploadDir).getCanonicalFile();
+            File uploadDirectory = new File(UPLOAD_DIR).getCanonicalFile();
             if (!fileToDownload.getCanonicalPath().startsWith(uploadDirectory.getCanonicalPath())) {
                 System.err.println("Path traversal attempt in download: " + filename);
                 addActionError("Access denied");
