@@ -1,6 +1,6 @@
 package com.arti.remotefiles;
 
-import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.ActionSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -13,7 +13,7 @@ public class DownloadAction extends ActionSupport {
 
     public String execute() throws Exception {
         String uploadDir = "webapps/ROOT/uploads";
-        File fileToDownload = new File();
+        File fileToDownload = new File(uploadDir, filename);
         inputStream = new FileInputStream(fileToDownload);
         return SUCCESS;
     }
