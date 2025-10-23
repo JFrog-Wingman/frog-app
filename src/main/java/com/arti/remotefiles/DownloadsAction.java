@@ -42,6 +42,14 @@ public class DownloadsAction extends ActionSupport {
     }
 
     public void setFilenames(List<String> filenames) {
+        // CVE-2025-48924 resilience: Validate input lengths to prevent StackOverflowError in framework processing
+        if (filenames != null) {
+            for (String filename : filenames) {
+                if (filename != null && filename.length() > 255) {
+                    throw new IllegalArgumentException("Filename too long (max 255 characters): " + filename);
+                }
+            }
+        }
         this.filenames = filenames;
     }
 
