@@ -3,6 +3,16 @@
         "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
         "http://struts.apache.org/dtds/struts-2.0.dtd">
 <struts>
+    <!-- Security configurations to mitigate common Struts vulnerabilities -->
+    <constant name="struts.devMode" value="false"/>
+    <constant name="struts.action.excludePattern" value="/content/.*" />
+    <constant name="struts.enable.DynamicMethodInvocation" value="false"/>
+    <constant name="struts.enable.SlashesInActionNames" value="false"/>
+    <constant name="struts.mapper.alwaysSelectFullNamespace" value="false"/>
+    <constant name="struts.ognl.expression.maxLength" value="256"/>
+    <constant name="struts.multipart.maxSize" value="104857600"/><!-- 100MB max file size -->
+    <constant name="struts.multipart.maxSizePerFile" value="52428800"/><!-- 50MB max per file -->
+    
     <package name="upload" extends="struts-default">
         <action name="upload" class="com.arti.remotefiles.UploadAction" method="doUpload">
             <interceptor-ref name="actionFileUpload"/>
@@ -10,7 +20,7 @@
         </action>
     </package>
     <package name="uploads" extends="struts-default">
-        <action name="uploads" class="com.arti.remotefiles.UploadsAction" method="doUpload">
+        <action name="uploads" class="com.arti.remotefiles.UploadAction" method="doUpload">
             <interceptor-ref name="actionFileUpload"/>
             <result name="success" type="">/files.jsp</result>
         </action>

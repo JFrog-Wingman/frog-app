@@ -1,6 +1,6 @@
 package com.arti.remotefiles;
 
-import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.ActionSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -12,8 +12,27 @@ public class DownloadAction extends ActionSupport {
     private InputStream inputStream;
 
     public String execute() throws Exception {
+        if (filename == null || filename.trim().isEmpty()) {
+            addActionError("No filename specified.");
+            return ERROR;
+        }
+        
         String uploadDir = "webapps/ROOT/uploads";
-        File fileToDownload = new File();
+        
+        // CVE-2025-48924 fix: Validate filename to prevent path traversal
+        if (!SecurityUtils.isSafeFileAccess(uploadDir, filename)) {
+            System.err.println("Security violation: Invalid filename attempted - " + filename);
+            addActionError("Invalid file request. Access denied.");
+            return ERROR;
+        }
+        
+        File fileToDownload = new File(uploadDir, filename);
+        
+        if (!fileToDownload.exists() || !fileToDownload.isFile()) {
+            addActionError("File not found: " + filename);
+            return ERROR;
+        }
+        
         inputStream = new FileInputStream(fileToDownload);
         return SUCCESS;
     }

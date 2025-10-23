@@ -1,25 +1,13 @@
 package com.arti.remotefiles;
 
-import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.ActionSupport;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UploadAction extends ActionSupport {
-    // Path traversal detection for secure file upload
-    public static boolean isSafeFileAccess(String baseDir, String filename) {
-        try {
-            File base = new File(baseDir).getCanonicalFile();
-            File file = new File(baseDir, filename).getCanonicalFile();
-            return file.getPath().startsWith(base.getPath() + File.separator);
-        } catch (Exception e) {
-            System.err.println("Error occurred: " + e.getMessage());
-            return false;
-        }
-    }
 
     private static final long serialVersionUID = 1L;
-
 
     private File upload;
     private String uploadContentType;
@@ -60,8 +48,9 @@ public class UploadAction extends ActionSupport {
                     uploadDirectory.mkdir();
                 }
                 // Path traversal check
-                if (!isSafeFileAccess(uploadDir, uploadFileName)) {
-                    System.err.println("Identified malicious filename - " + uploadFileName);
+                if (!SecurityUtils.isSafeFileAccess(uploadDir, uploadFileName)) {
+                    System.err.println("Security violation: Invalid filename attempted - " + uploadFileName);
+                    addActionError("Invalid filename. Upload denied.");
                     return ERROR;
                 }
                 File destFile = new File(uploadDirectory, uploadFileName);
