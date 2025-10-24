@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UploadAction extends ActionSupport {
+    // Maximum safe depth to prevent stack overflow from deeply nested structures
+    private static final int MAX_SAFE_DEPTH = 100;
+    
     // Path traversal detection for secure file upload
     public static boolean isSafeFileAccess(String baseDir, String filename) {
         try {
@@ -16,6 +19,26 @@ public class UploadAction extends ActionSupport {
             System.err.println("Error occurred: " + e.getMessage());
             return false;
         }
+    }
+    
+    // Additional protection against deeply nested paths or class names that could cause stack overflow
+    public static boolean isSafeInputDepth(String input) {
+        if (input == null || input.length() > 1000) {
+            return false; // Reject null, empty, or excessively long inputs
+        }
+        
+        // Count depth indicators (dots, slashes, etc.) to prevent deep recursion
+        int depth = 0;
+        for (char c : input.toCharArray()) {
+            if (c == '.' || c == '/' || c == '\\' || c == '$') {
+                depth++;
+                if (depth > MAX_SAFE_DEPTH) {
+                    System.err.println("Input rejected due to excessive depth: " + input);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private static final long serialVersionUID = 1L;
@@ -59,8 +82,8 @@ public class UploadAction extends ActionSupport {
                 if (!uploadDirectory.exists()) {
                     uploadDirectory.mkdir();
                 }
-                // Path traversal check
-                if (!isSafeFileAccess(uploadDir, uploadFileName)) {
+                // Path traversal check and depth validation
+                if (!isSafeFileAccess(uploadDir, uploadFileName) || !isSafeInputDepth(uploadFileName)) {
                     System.err.println("Identified malicious filename - " + uploadFileName);
                     return ERROR;
                 }
