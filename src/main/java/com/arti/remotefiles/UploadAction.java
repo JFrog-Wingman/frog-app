@@ -47,6 +47,10 @@ public class UploadAction extends ActionSupport {
     }
 
     public void setUploadFileName(String uploadFileName) {
+        // CVE-2025-48924 resilience: Validate input length to prevent StackOverflowError in framework processing
+        if (uploadFileName != null && uploadFileName.length() > 255) {
+            throw new IllegalArgumentException("Filename too long (max 255 characters)");
+        }
         this.uploadFileName = uploadFileName;
     }
 
